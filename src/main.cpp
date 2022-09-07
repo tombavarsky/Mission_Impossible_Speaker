@@ -99,8 +99,20 @@ void loop()
   // delay(100);
   if (x == 1 && lastX == 0)
   {
-    operateSpeaker();
-    Serial.println("operating speakers...");
+    // Set volume to maximum (0 to 30).
+    dfmp3.setVolume(volume);
+    // Play the first MP3 file on the SD card (mission impossible theme)
+    dfmp3.playGlobalTrack(1);
+
+    Serial.println("playing mission impossible...");
   }
+  else if (x == 2 && lastX != 2)
+  {
+    // Set volume to maximum (0 to 30).
+    dfmp3.setVolume(volume);
+    // play laser touching sound
+    dfmp3.playAdvertisement(1); // sd:/advert/0001.mp3
+  }
+
   lastX = x;
 }
