@@ -36,9 +36,10 @@ public:
   static void OnError([[maybe_unused]] DfMp3 &mp3, uint16_t errorCode)
   {
     // see DfMp3_Error for code meaning
-    Serial.println();
-    Serial.print("Com Error ");
-    Serial.println(errorCode);
+
+    // Serial.println();
+    // Serial.print("Com Error ");
+    // Serial.println(errorCode);
   }
   static void OnPlayFinished([[maybe_unused]] DfMp3 &mp3, [[maybe_unused]] DfMp3_PlaySources source, uint16_t track)
   {
@@ -61,7 +62,8 @@ public:
 
 int x = 0;
 int lastX = 0;
-const int volume = 15;
+const int volume = 25;
+bool new_sign = false;
 
 // function that executes whenever data is received from master
 // this function is registered as an event, see setup()
@@ -75,6 +77,8 @@ void receiveEvent(int howMany)
   }
   x = Wire.read(); // receive byte as an integer
   Serial.println(x);
+
+  new_sign = true;
 }
 
 void operateSpeaker()
@@ -97,22 +101,34 @@ void setup()
 void loop()
 {
   // delay(100);
-  if (x == 1 && lastX == 0)
+  if (x == 1 && new_sign)
   {
-    // Set volume to maximum (0 to 30).
+    // Set volume(0 to 30).
     dfmp3.setVolume(volume);
     // Play the first MP3 file on the SD card (mission impossible theme)
+    dfmp3.start();
     dfmp3.playGlobalTrack(1);
 
     Serial.println("playing mission impossible...");
+    new_sign = false;
   }
-  else if (x == 2 && lastX != 2)
+  else if (x == 2 && new_sign)
   {
     // Set volume to maximum (0 to 30).
     dfmp3.setVolume(volume);
-    // play laser touching sound
+    // play laser hitting sound
     dfmp3.playAdvertisement(1); // sd:/advert/0001.mp3
+    Serial.println("hit!!");
+    new_sign = false;
+  }else if(x == 0 && new_sign){
+    dfmp3.stop();
+    new_sign = false;
   }
+
+  Serial.print("last X:  ");
+  Serial.print(lastX);
+  Serial.print("X:  ");
+  Serial.println(x);
 
   lastX = x;
 }
